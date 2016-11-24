@@ -44,7 +44,7 @@ class Training_And_Test_Data_Split(object):
         self._test_data_df = test_data_initial.copy()
         #test_data_initial = self._ip_dataframe[~pd.isnull(self._ip_dataframe).any(axis=1)]
         #self._test_data_df = test_data_initial.copy()
-        
+
         
     def generate_train_data(self):
         """

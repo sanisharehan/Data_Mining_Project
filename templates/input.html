@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <h1> Welcome to Business Recommender Application </h1>
+    <form action="/get_response" class="form-inline" method="post" name="login">
+        <span>
+        <p>
+        Select the business type from the drop-down:  
+        <select name="business_select">
+        {% for key, val in values_list.iteritems() %}
+            <option value="{{ key }}"> {{ val }} </option>
+        {% endfor %}
+        </select>
+        </p>
+        </span>
+        <span>
+        <p>
+        Enter the zipcode:
+        <input type="text" name="zipcode">
+        </p>
+        </span><p> <input type="submit" value="Find Recommendation"></p>
+    </form>
+
+{% endblock %}

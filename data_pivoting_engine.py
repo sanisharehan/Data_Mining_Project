@@ -42,7 +42,7 @@ class Data_Pivoting_Aggregation_Engine(object):
         
         self._agg_ratings_df['agg_review_stars'] = self._agg_ratings_df['all_stars']/self._agg_ratings_df['review_count']
         # Round the values to closest 0.5
-        self._agg_ratings_df['agg_review_stars'] = self._agg_ratings_df['agg_review_stars'].apply(round_to_closest_pt_5)
+        # self._agg_ratings_df['agg_review_stars'] = self._agg_ratings_df['agg_review_stars'].apply(round_to_closest_pt_5)
         
         # This will generate columns with names: business_type, zipcode
         # review_count_sum, all_stars_sum, agg_review_stars_sum

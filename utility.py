@@ -123,8 +123,12 @@ def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map):
             pred_col_val = pred_row[col_name].tolist()[0] 
             
             # Append these values to respective lists.
-            actual_values_array.append(round_to_closest_pt_5(act_col_val))
-            predicted_values_array.append(round_to_closest_pt_5(pred_col_val))
+            actual_values_array.append(act_col_val)
+            predicted_values_array.append(pred_col_val)
+
+            error = abs(act_col_val - pred_col_val)
+            if error >= 2:
+                print ("Error: %f, zipcode: %s, col: %s" % (error, str(act_zipcode), col_name))
     
     print "Actual array: ", actual_values_array
     print "Predicted array: ", predicted_values_array
@@ -132,7 +136,13 @@ def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map):
 
     # Calculate RMSE using the two vectors.
     rmse = sqrt(mean_squared_error(np.array(actual_values_array), np.array(predicted_values_array)))
+   
+    gg = np.array(actual_values_array)
+    hh = np.array(predicted_values_array)
+    diff = gg - hh
     
+    print ("Mean of error: %f, std deviation: %f" % (np.mean(diff), np.std(diff)))
+
     print "The RMSE is: ", rmse    
     return rmse
 

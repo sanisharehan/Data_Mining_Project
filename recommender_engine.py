@@ -5,7 +5,8 @@ using collaborative filtering.
 Author: Sanisha Rehan
 '''
 from sklearn.metrics.pairwise import cosine_similarity
-from utility import convert_df_to_np_array, round_to_closest_pt_5, generate_df_from_records
+from utility import convert_df_to_np_array, round_to_closest_pt_5, generate_df_from_records, save_df_to_csv
+from uszipcode import ZipcodeSearchEngine
 
 import numpy as np
 import pandas as pd
@@ -16,7 +17,7 @@ class Recommender_Engine(object):
     """
     Class for creating the recommender engine for data mining project.
     """
-    def __init__(self, ip_dataframe, k_neigh=None, geographical_similarity=False):
+    def __init__(self, ip_dataframe, k_neigh=None, geographical_similarity=True):
         self._ip_dataframe = ip_dataframe.copy()
         self._k_neigh = k_neigh
         self._geographical_similarity = geographical_similarity
@@ -42,6 +43,7 @@ class Recommender_Engine(object):
         print ("LOG: [Recommender Engine] Generating similarity matrix.")
         sim_matrix = cosine_similarity(ip_df)
         self._similarity_matrix = sim_matrix
+        sim_matrix.tofile("Similarity_matrix.csv", sep=",")
         print ("LOG: [Recommender Engine] Generated similarity matrix.")
         
     
@@ -119,7 +121,7 @@ class Recommender_Engine(object):
                 # Select the similarity from similarity matrix.
                 index_similarity_map = {}
                 for zip_index in k_nearest_zip_list:
-                    index_similarity_map[zip_index] = similarity_vector[zip_list]
+                    index_similarity_map[zip_index] = similarity_vector[zip_index]
             else:
                 # Use all zipcodes to generate a map to hold index : similarity_value
                 index_similarity_map = {index : val for index, val in enumerate(similarity_vector)} 
@@ -225,7 +227,7 @@ class Recommender_Engine(object):
                     col_rating = self.predict_rating_for_given_col(similar_zipcodes_map, col_name)
 
                 # Round off the rating
-                col_rating_rounded = round_to_closest_pt_5(col_rating)
+                col_rating_rounded = col_rating
                 col_ratings_list.append(col_rating_rounded)
 
             # Add missing ratings columns for the given zipcode.
@@ -277,6 +279,6 @@ class Recommender_Engine(object):
         self.generate_row_similarities_matrix(self._df_matrix_array)
         
         # c. Generate missing ratings for the input dataframe.
-        self._predicted_ratings_records, self._missing_ratings_map = self.generate_missing_ratings_for_dataset(k_neigh=30, 
+        self._predicted_ratings_records, self._missing_ratings_map = self.generate_missing_ratings_for_dataset(k_neigh=self._k_neigh, 
                 geographical_similarity=self._geographical_similarity)
         print ("LOG: [Recommender Engine] Performed recommendation.")

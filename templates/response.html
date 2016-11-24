@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <h1> Welcome to Business Recommender Application </h1>
+    <h2> Recommended Results </h2>    
+    <span>
+        <p>
+        Business Type Selected: <b> {{ result_map['business'] }} </b>
+        </p>
+    </span>
+    <span>
+        <p>
+        Zipcode Selected: <b> {{ result_map['zipcode'] }} </b>
+        </p>
+    </span>
+    <span>
+        <p>
+        Averating Rating Predicted: <b> {{ result_map['rating'] }} </b>
+        </p>
+    </span>
+
+{% endblock %}

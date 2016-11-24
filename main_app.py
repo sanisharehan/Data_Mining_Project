@@ -10,12 +10,16 @@ from data_preprocessing_engine import Data_Preprocessing_Engine
 from data_pivoting_engine import Data_Pivoting_Aggregation_Engine
 from data_split_engine import Training_And_Test_Data_Split
 from recommender_engine import Recommender_Engine
-from utility import save_df_to_csv, calculate_rmse_model
+from utility import save_df_to_csv, calculate_rmse_model, read_csv_data_to_df
+from uszipcode import ZipcodeSearchEngine
 
 import datetime
 import random
 import io
 import math
+import numpy as np
+
+FINAL_RATINGS_DF = None 
 
 #------------------------------------------------------------------------------
 def generate_test_data_with_missing_values(ip_test_df, num_nans):
@@ -39,7 +43,7 @@ def generate_test_data_with_missing_values(ip_test_df, num_nans):
     # Set seed value
     random.seed(datetime.datetime.now())
     #chaned_values_map = {}
-    for i in range(0, num_nans):
+    for i in range(0, 200):
         rnd_index = random.randint(0, len_index_list-1)
         rnd_col = random.randint(0, len_columns_list-1)
 
@@ -60,7 +64,7 @@ def generate_test_data_with_missing_values(ip_test_df, num_nans):
                 changed_indices_map[index_sel] = [rnd_col+1]
             
             # Change the value of that cell to None
-            print ("Replacing index: %d, column: %s" %(index_sel, col_sel))
+            #print ("Replacing index: %d, column: %s" %(index_sel, col_sel))
             test_data_to_return.ix[index_sel, (rnd_col+1)] = None
             total_values_changed_to_nan += 1
             
@@ -72,8 +76,11 @@ def generate_test_data_with_missing_values(ip_test_df, num_nans):
 def perform_training_recommendation(train_df):
     """
     """
-    rec_model_obj = Recommender_Engine(train_df.copy(), 30, False)
+    global FINAL_RATINGS_DF
+    rec_model_obj = Recommender_Engine(train_df.copy(), 20, True)
     predicted_train_result_df = rec_model_obj.get_predicted_ratings_df()
+
+    FINAL_RATINGS_DF = predicted_train_result_df.copy()
     
     # Save results to a file (optional)
     save_df_to_csv(predicted_train_result_df, "yelp_train_data_predicted.csv")
@@ -83,11 +90,16 @@ def perform_training_recommendation(train_df):
 def perform_test_recommendation(test_df):
     """
     """
+    print ("---------------------------------------------------------")
     # Generate test dataset with randomly allocated Nan in the given df.
-    test_df_for_eval, missing_ratings_map = generate_test_data_with_missing_values(test_df.copy(), 100)
-    rec_model_obj = Recommender_Engine(test_df_for_eval.copy(), 30, False)
+    total_cells = test_df.shape[0] * test_df.shape[1]
+    test_cells = (0.1 * total_cells)
+    test_df_for_eval, missing_ratings_map = generate_test_data_with_missing_values(test_df.copy(), test_cells)
+    rec_model_obj = Recommender_Engine(test_df_for_eval.copy(), 20, True)
 
     predicted_test_result_df = rec_model_obj.get_predicted_ratings_df()
+    save_df_to_csv(test_df, "yelp_actual_df.csv")
+    save_df_to_csv(predicted_test_result_df, "yelp_predicted_df.csv")
 
     #missing_ratings_map = rec_model_obj.get_missing_columns_map()
 
@@ -124,11 +136,57 @@ def generate_training_and_test_data(ip_pivot_df):
     """
     Function for generating test and training data.
     """
-    data_split_obj = Training_And_Test_Data_Split(ip_pivot_df.copy(), 20)
+    data_split_obj = Training_And_Test_Data_Split(ip_pivot_df.copy(), 10)
     training_df = data_split_obj.get_train_dataframe()
     test_df = data_split_obj.get_test_dataframe()
 
     return training_df, test_df
+
+
+#------------------------------------------------------------------------------
+def get_ratings_for_business_zipcode(business_type, zipcode):
+    """
+    """
+    # Get all zipcodes avl in the result.
+    global FINAL_RATINGS_DF
+    FINAL_RATINGS_DF = read_csv_data_to_df("yelp_train_data_predicted.csv")
+    print len(FINAL_RATINGS_DF)
+    zipcode_list = np.array(FINAL_RATINGS_DF.zipcode).tolist()
+    if zipcode in zipcode_list:
+        rating_row = FINAL_RATINGS_DF[FINAL_RATINGS_DF['zipcode'] == zipcode]
+        rating = rating_row[business_type].tolist()[0]
+        print ("Predicted Rating for business: %s, zipcode: %d is %f" % (business_type, zipcode, rating)) 
+        return rating
+    else:
+        search = ZipcodeSearchEngine()
+        lat_long_inf = search.by_zipcode(str(zipcode))
+        lat, longi = lat_long_inf["Latitude"], lat_long_inf["Longitude"]
+        
+        try:
+            result = search.by_coordinate(lat, longi, radius=radius, returns=k_neigh)
+        except:
+            return None
+        
+        if len(result) == 0:
+            return None
+        else:
+            nearest_zip_list = []
+            for res in result:
+                nearest_zip_list.append(int(res["Zipcode"]))
+                
+            # Check which all zipcodes are present in the given data.
+            avl_zipcode = set(nearest_zip_list) & set(self._zip_code_list)
+            if avl_zipcode is not None:
+                avl_zipcode_list = list(avl_zipcode)
+                ratings = FINAL_RATINGS_DF[FINAL_RATINGS_DF['zipcode'].isin(avl_zipcode_list)]
+                # Calculate avg rating.
+                rating = 0
+                for row in ratings.iterrows():
+                    rating += ratings[business_type].tolist()[0]
+                avg_rating = rating/len(ratings)
+                print ("Predicted Rating for business: %s, zipcode: %d is %f" % (business_type, zipcode, avg_rating)) 
+            else:
+                return None
 
 
 #------------------------------------------------------------------------------
@@ -146,5 +204,8 @@ if __name__ == '__main__':
     perform_training_recommendation(training_df.copy())
 
     # Preform recommendation on test data.
-    perform_test_recommendation(test_df.copy())
+    perform_test_recommendation(training_df.copy())
+
+    # Get rating.
+    rating = get_ratings_for_business_zipcode('Restaurants', 15204)
     print "Done"

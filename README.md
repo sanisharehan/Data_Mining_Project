@@ -10,7 +10,10 @@ Business Recommendation Engine
 The application has been designed and implemented as part of group project for
 Spring 16 session.
 
-Brief Introduction: This recommendation system is built to predict ratings for a 
+Brief Introduction: 
+===================
+
+This recommendation system is built to predict ratings for a 
 given business type and zipcode using Yelp Business reviews data.
 
 How To Run application:

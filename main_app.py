@@ -78,7 +78,7 @@ def get_ratings_for_business_zipcode(business_type, zipcode):
     """
     # Get all zipcodes avl in the result.
     global FINAL_RATINGS_DF
-    FINAL_RATINGS_DF = read_csv_data_to_df("yelp_train_data_predicted.csv")
+    FINAL_RATINGS_DF = read_csv_data_to_df(TRAINING_PRED_FILENAME)
     print len(FINAL_RATINGS_DF)
     zipcode_list = np.array(FINAL_RATINGS_DF.zipcode).tolist()
     if zipcode in zipcode_list:

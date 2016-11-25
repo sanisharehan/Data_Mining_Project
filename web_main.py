@@ -1,3 +1,7 @@
+"""
+Simple Flask application for providing a simple UI for the recommender
+application.
+"""
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_wtf import Form
 from wtforms import StringField, BooleanField
@@ -7,17 +11,20 @@ from constants import YELP_BUSINESS_TYPES_LIST
 app = Flask(__name__)
 app.config.from_object('config')
 
-
 class InputForm(Form):
     business_id = StringField('business_id')
     zipcode = StringField('zipcode')
 
-@app.route("/get_response", methods=['GET', 'POST'])
+# Displaying response code.
+@app.route("/business/response", methods=['GET', 'POST'])
 def get_response():
+    """
+    This URL gets called when displaying response for the user input.
+    It gets the predicted rating from the recommendation main application
+    and displays it on UI.
+    """
     selected_value = request.form.get('business_select').replace("_", " ")
     zipcode = request.form.get('zipcode')
-    #print ("--------- Selected value:--- %s, zipcode: %s" % (selected_value, zipcode))
-    
     result_map = {}
     result_map['business'] = selected_value
     result_map['zipcode'] = zipcode
@@ -31,40 +38,29 @@ def get_response():
             title='Response',
             result_map=result_map)
 
-
-
+# Simple URL for testing the app.
 @app.route("/index")
 def index():
     return "Welcome to Business Recommender App!"
 
-
-@app.route("/business", methods=['GET', 'POST'])
+# Home page for application.
+@app.route("/business/home_page", methods=['GET', 'POST'])
 def business_main_page():
+    """
+    Method for displaying application home page. It gets all the available business
+    types an ddisplays in the dropdown.
+    """
     business_list = YELP_BUSINESS_TYPES_LIST
     values_list = {}
     for name in business_list:
         val = name.replace(" ", "_")
         values_list[val] = name
-    print "-------------  ", values_list
     form = InputForm()
     return render_template('input.html', 
             title='Enter Information', 
             form=form,
             values_list = values_list)
 
-
-@app.route("/hello/<string:name>/")
-def hello(name):
-    business_names = ["Restaurants", "Bars"]
-    quote = business_names
-
-    return render_template('test.html', title="Home", **locals())
-
-
-
-@app.route("/hello/<string:name>/business.png")
-def image(name):
-    return "Not available"
-
+# Run the application.
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -47,7 +47,6 @@ class Data_Pivoting_Aggregation_Engine(object):
         # This will generate columns with names: business_type, zipcode
         # review_count_sum, all_stars_sum, agg_review_stars_sum
         self._agg_ratings_df = self._agg_ratings_df.add_suffix('_sum').reset_index()
-        #print self._agg_ratings_df[:12]
         print ("LOG: [Pivoting Engine] Finished computing aggregated ratings.")
         
         
@@ -65,7 +64,7 @@ class Data_Pivoting_Aggregation_Engine(object):
         self._pivot_df = filtered_df.pivot(index= index_col, 
                                                  columns= col_to_pivot, 
                                                  values= col_to_fill)
-        #print self._pivot_df[:12]
+        print self._pivot_df[:3]
         print ("LOG: [Pivoting Engine] Finished pivoting.")
         
         
@@ -87,6 +86,6 @@ class Data_Pivoting_Aggregation_Engine(object):
         """
         print ("LOG: [Pivoting Engine] Number of rows in pivoted dataframe: %d" % len(self._pivot_df.index))
         pivot_df = self._pivot_df.reset_index()
-        #pivot_df = pivot_df[YELP_BUSINESS_TYPES_LIST]
+        print pivot_df[:4]
         return pivot_df
         

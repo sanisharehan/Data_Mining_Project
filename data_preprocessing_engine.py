@@ -144,7 +144,7 @@ class Data_Preprocessing_Engine(object):
     def get_final_preprocessed_df(self):
         """
         """
-        print ("Number of rows in final dataframe: %d" % len(self._ip_dataframe.index))
+        print ("\tNumber of rows in final preprocessed dataframe: %d" % len(self._ip_dataframe.index))
         return self._ip_dataframe
 
     

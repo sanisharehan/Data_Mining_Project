@@ -44,6 +44,7 @@ class Recommender_Engine(object):
         sim_matrix = cosine_similarity(ip_df)
         self._similarity_matrix = sim_matrix
         sim_matrix.tofile("Similarity_matrix.csv", sep=",")
+        print ("LOG: [Recommender Engine] Saved computed similarity matrix into file 'Similarity_matrix.csv")
         print ("LOG: [Recommender Engine] Generated similarity matrix.")
         
     

@@ -12,7 +12,15 @@ import io
 
 from math import sqrt
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 
+def plot_error_histogram(err_numpy):
+    """
+    """
+    plt.hist(err_numpy)
+    plt.xlabel('Error range')
+    plt.ylabel('Number of errors')
+    plt.show()
 
 #------------------------------------------------------------------------------
 def generate_df_from_records(records_array, desired_columns=None):
@@ -47,13 +55,13 @@ def save_df_to_csv(ip_dataframe, csv_file_loc, add_index=False):
     """
     Function to save a given dataframe to csv file.
     """
-    if len(ip_dataframe.index) == 0:
+    if ip_dataframe.shape[0] == 0:
         print ("Dataframe empty. Not saving to csv file.")
         return
     ip_dataframe.to_csv(csv_file_loc, index=add_index)
     
 #------------------------------------------------------------------------------
-def read_csv_data_to_df(csv_file_loc, headers=True):
+def read_csv_data_to_df(csv_file_loc, headers=None):
     """
     """
     return pd.read_csv(csv_file_loc)
@@ -83,7 +91,7 @@ def convert_df_to_np_array(ip_dataframe):
     
 
 #------------------------------------------------------------------------------
-def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map):
+def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map, plot_graph):
     """
     Function to calculate RMSE for input actual df, predicted df for given predicted
     values map. The map holds zipcodes and list of columns for which values
@@ -93,21 +101,6 @@ def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map):
     predicted_values_array = []
     actual_df_cols_list = actual_df.columns.tolist()
     
-    '''
-    for zipcode, col_list in predicted_vals_map.iteritems():
-        # Get row corresponding to zipcode.
-        act_row = actual_df[actual_df['zipcode'] == zipcode]
-        pred_row = predicted_df[predicted_df['zipcode'] == zipcode]
-        
-        # Get values for columns predicted.
-        for col_name in col_list:
-            act_col_val = act_row[col_name].tolist()[0]
-            pred_col_val = pred_row[col_name].tolist()[0]
-            
-            # Append these values to respective lists.
-            actual_values_array.append(round_to_closest_pt_5(act_col_val))
-            predicted_values_array.append(round_to_closest_pt_5(pred_col_val))
-    '''
     for act_index, col_list in predicted_vals_map.iteritems():
         # First get the row from actual_df
         act_row = actual_df[actual_df.index == act_index]
@@ -127,23 +120,23 @@ def calculate_rmse_model(actual_df, predicted_df, predicted_vals_map):
             predicted_values_array.append(pred_col_val)
 
             error = abs(act_col_val - pred_col_val)
-            if error >= 2:
-                print ("Error: %f, zipcode: %s, col: %s" % (error, str(act_zipcode), col_name))
+            #if error >= 2:
+            #print ("LOG: [Utility] Error: %f, zipcode: %s, col: %s" % (error, str(act_zipcode), col_name))
     
-    print "Actual array: ", actual_values_array
-    print "Predicted array: ", predicted_values_array
-    print "Number of values: ", len(actual_values_array)
+    #print "Actual array: ", actual_values_array
+    #print "Predicted array: ", predicted_values_array
+    print ("LOG: [Utility] Number of cells compared: %d" % len(actual_values_array))
 
     # Calculate RMSE using the two vectors.
     rmse = sqrt(mean_squared_error(np.array(actual_values_array), np.array(predicted_values_array)))
    
-    gg = np.array(actual_values_array)
-    hh = np.array(predicted_values_array)
-    diff = gg - hh
+    act_np = np.array(actual_values_array)
+    pred_np = np.array(predicted_values_array)
+    diff = act_np - pred_np
     
-    print ("Mean of error: %f, std deviation: %f" % (np.mean(diff), np.std(diff)))
-
-    print "The RMSE is: ", rmse    
+    print ("LOG: [Utility] Error Mean: %f, Standard Deviation: %f, RMSE: %f" % (np.mean(diff), np.std(diff), rmse))
+    if plot_graph:
+        plot_error_histogram(diff)
     return rmse
 
 #------------------------------------------------------------------------------

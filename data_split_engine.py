@@ -37,7 +37,7 @@ class Training_And_Test_Data_Split(object):
                 test_df_rows_idx.append(index)
                 
         # Check total rows to be added to test df.
-        print ("Total rows to be added to test df: %d" % len(test_df_rows_idx))
+        print ("LOG: [Test Train Data Engine] Total rows to be added to test df: %d" % len(test_df_rows_idx))
         
         # Create test df with those rows
         test_data_initial = self._ip_dataframe[self._ip_dataframe.index.isin(test_df_rows_idx)]
@@ -71,7 +71,7 @@ class Training_And_Test_Data_Split(object):
         self.generate_test_data()
         self.generate_train_data()
         print ("LOG: [Test Train Data Engine] Stats:")
-        print ("Rows (Original data): %d" % len(self._ip_dataframe.index))
-        print ("Rows (Test data): %d" % len(self._test_data_df.index))
-        print ("Rows (Training data): %d" % len(self._train_data_df.index))
+        print ("\tRows (Original data): %d" % len(self._ip_dataframe.index))
+        print ("\tRows (Test data): %d" % len(self._test_data_df.index))
+        print ("\tRows (Training data): %d" % len(self._train_data_df.index))
         print ("LOG: [Test Train Data Engine] Generated test-train data.")

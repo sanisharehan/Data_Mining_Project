@@ -4,9 +4,9 @@ used to perform initial filtering on Yelp business review data.
 
 Author: Sanisha Rehan
 '''
-from constants import YELP_DESIRED_COLUMNS_LIST
+from constants import YELP_DESIRED_COLUMNS_LIST, YELP_FILTERED_STRING_COLUMNS_LIST
 from uszipcode import ZipcodeSearchEngine
-from utility import generate_df_from_records
+from utility import generate_df_from_records, convert_string_from_unicode_to_ascii
 
 import json
 import numpy as np
@@ -23,7 +23,8 @@ class Data_Filtering_Engine(object):
         self._input_filtered_cols_records = list()
         self._input_dataframe = None
         self.perform_data_filtering_and_cleanup()
-        
+    
+
     def read_ip_json_file_to_list(self):
         """
         Reads input json file and return list of records.
@@ -37,7 +38,8 @@ class Data_Filtering_Engine(object):
         print ("LOG: [Filtering Engine] Read input file.")
         print ("LOG: [Filtering Engine] Number of records fetched: %d" % len(ip_data))
         self._input_data_records = ip_data
-        
+    
+
     def filter_desired_columns_from_ip_records(self):
         """
         Filter only desired columns from the records. 
@@ -73,7 +75,7 @@ class Data_Filtering_Engine(object):
                                               returns=3)
                 if len(result) == 0:
                     continue
-                zip_code = result[0]['Zipcode']
+                zip_code = int(result[0]['Zipcode'])
                 
             # Filter out rows that belong to some invalid locations.
             if (zip_code < 100):
@@ -93,7 +95,8 @@ class Data_Filtering_Engine(object):
             
         print ("LOG: [Filtering Engine] Number of filtered final records: %d" % len(filtered_data))
         self._input_filtered_cols_records = filtered_data
-        
+    
+
     def convert_records_to_df(self):
         """
         Function to convert records to a Dataframe.
@@ -103,14 +106,18 @@ class Data_Filtering_Engine(object):
             self._input_filtered_cols_records, 
             YELP_DESIRED_COLUMNS_LIST
         )
+        for col_name in YELP_FILTERED_STRING_COLUMNS_LIST:
+            self._input_dataframe[col_name] = self._input_dataframe[col_name].apply(convert_string_from_unicode_to_ascii)
         print ("LOG: [Filtering Engine] Converted records to dataframe.")
         
+
     def get_final_dataframe(self):
         """
         Function returns generated pre-processed dataframe.
         """
         return self._input_dataframe
     
+
     def perform_data_filtering_and_cleanup(self):
         """
         Step by step function calling to filter and cleanup the yelp business review data.

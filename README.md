@@ -17,18 +17,28 @@ How To Run application:
 ======================
 
 I. Run the UI application:
-python web_main.py
 
+{{{
+    python web_main.py
+}}}
 
 II. Run the recommendation engine on terminal (using training and test data):
 
 a. Run with default options:
-python main_app.py
+
+{{{
+    python main_app.py
+}}}
 
 b. Run with different options:
-python main_app.py -r train -k 15 -s cosine
 
+{{{
+    python main_app.py -r train -k 15 -s cosine
+}}}
+
+{{{
 Various options:
+
     a. To specify the running dataset for recommender system. 
     Default value: all
     -r <string>
@@ -61,6 +71,7 @@ Various options:
     f. To read the pivoted data from saved file.
     -f
     Read from file True.
+}}}
 
 Note: Follow the logs to view data saved from different processing and recommendation
 stages.
